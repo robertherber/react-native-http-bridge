@@ -14,7 +14,13 @@ module.exports = {
         }
 
         Server.start(port, serviceName);
-        DeviceEventEmitter.addListener('httpServerResponseReceived', callback);
+        DeviceEventEmitter.addListener('httpServerResponseReceived', (args) => {
+            console.log('args', args);
+            const { requestId } = args,
+                  { code = 200, type = 'application/json', body } = callback(args);
+
+            Server.respond(code, type, body, requestId);
+        });
     },
 
     stop: function () {

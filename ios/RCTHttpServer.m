@@ -9,7 +9,7 @@
 
 @interface RCTHttpServer : NSObject <RCTBridgeModule> {
     WGCDWebServer* _webServer;
-    WGCDWebServerDataResponse* _requestResponse;
+    NSMutableDictionary* _requestResponses;
 }
 @end
 
@@ -21,10 +21,15 @@ static RCTBridge *bridge;
 
 RCT_EXPORT_MODULE();
 
+int lengthOfRandomString = 16;
+NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
 RCT_EXPORT_METHOD(start:(NSInteger) port
                   serviceName:(NSString *) serviceName)
 {
     RCTLogInfo(@"Running HTTP bridge server: %d", port);
+    
+    _requestResponses = [[NSMutableDictionary alloc] init];
 
     dispatch_sync(dispatch_get_main_queue(), ^{
         _webServer = [[WGCDWebServer alloc] init];
@@ -34,15 +39,30 @@ RCT_EXPORT_METHOD(start:(NSInteger) port
                     processBlock:^WGCDWebServerResponse *(WGCDWebServerRequest* request) {
 
             WGCDWebServerDataRequest* dataRequest = (WGCDWebServerDataRequest*)request;
-            _requestResponse = NULL;
-
+            WGCDWebServerDataResponse* _requestResponse;
+                        
+            NSMutableString *requestId = [NSMutableString stringWithCapacity: lengthOfRandomString];
+            
+            for (int i=0; i<lengthOfRandomString; i++) {
+                [requestId appendFormat: @"%C", [letters characterAtIndex: arc4random_uniform([letters length])]];
+            }
+                    
+                    
+                        
             [self.bridge.eventDispatcher sendAppEventWithName:@"httpServerResponseReceived"
                                                          body:@{@"postData": dataRequest.jsonObject,
+                                                                @"requestId": requestId,
+                                                                @"headers": dataRequest.headers,
+                                                                @"query":
+                                                                    dataRequest.query,
                                                                      @"url": dataRequest.URL.relativeString}];
-
+            
             while (_requestResponse == NULL) {
-                [NSThread sleepForTimeInterval:0.1f];
+                _requestResponse = [_requestResponses objectForKey:requestId];
+                [NSThread sleepForTimeInterval:0.02f];
             }
+                        
+            [_requestResponses removeObjectForKey:requestId ];
 
             return _requestResponse;
         }];
@@ -66,10 +86,11 @@ RCT_EXPORT_METHOD(stop)
 
 RCT_EXPORT_METHOD(respond:(NSInteger) code
                   type: (NSString *) type
-                  body: (NSString *) body)
+                  body: (NSString *) body
+                  requestId: (NSString *) requestId)
 {
     NSData* data = [body dataUsingEncoding:NSUTF8StringEncoding];
-    _requestResponse = [[WGCDWebServerDataResponse alloc] initWithData:data contentType:type];
+    [_requestResponses setObject:[[WGCDWebServerDataResponse alloc] initWithData:data contentType:type] forKey: requestId];
 }
 
 @end
