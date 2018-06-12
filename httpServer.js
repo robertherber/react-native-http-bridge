@@ -1,34 +1,35 @@
 /**
  * @providesModule react-native-http-server
  */
-'use strict';
 
-import {DeviceEventEmitter} from 'react-native';
-import {NativeModules} from 'react-native';
-var Server = NativeModules.HttpServer;
+
+import { DeviceEventEmitter } from 'react-native';
+import { NativeModules } from 'react-native';
+
+const Server = NativeModules.HttpServer;
 
 module.exports = {
-    start: function (port, serviceName, callback) {
-        if (port == 80) {
-            throw "Invalid server port specified. Port 80 is reserved.";
-        }
-
-        Server.start(port, serviceName);
-        DeviceEventEmitter.addListener('httpServerResponseReceived', (args) => {
-            console.log('args', args);
-            const { requestId } = args,
-                  { code = 200, type = 'application/json', body } = callback(args);
-
-            Server.respond(code, type, body, requestId);
-        });
-    },
-
-    stop: function () {
-        Server.stop();
-        DeviceEventEmitter.removeListener('httpServerResponseReceived');
-    },
-
-    respond: function (code, type, body) {
-        Server.respond(code, type, body);
+  start(port, serviceName, callback) {
+    if (port == 80) {
+      throw 'Invalid server port specified. Port 80 is reserved.';
     }
-}
+
+    Server.start(port, serviceName);
+    DeviceEventEmitter.addListener('httpServerResponseReceived', (args) => {
+      console.log('args', args);
+      const { requestId } = args;
+      return Promise.resolve(callback(args)).then(({ code = 200, type = 'application/json', body, data }) => {
+        Server.respond(code, type, data ? JSON.stringify(data) : body, requestId);
+      });
+    });
+  },
+
+  stop() {
+    Server.stop();
+    DeviceEventEmitter.removeListener('httpServerResponseReceived');
+  },
+
+  respond(code, type, body) {
+    Server.respond(code, type, body);
+  },
+};
