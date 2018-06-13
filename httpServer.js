@@ -20,6 +20,10 @@ module.exports = {
       const { requestId } = args;
       return Promise.resolve(callback(args)).then(({ code = 200, type = 'application/json', body, data }) => {
         Server.respond(code, type, data ? JSON.stringify(data) : body, requestId);
+      })
+      .catch((error) => {
+        console.log('ERROR', error);
+        return Server.respond(500, 'application/json', JSON.stringify({ message: 'An error occurred' }), requestId);
       });
     });
   },
