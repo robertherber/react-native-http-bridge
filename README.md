@@ -1,13 +1,21 @@
 # react-native-http-bridge
 
+A fork of [react-native-http-bridge](https://github.com/alwx/react-native-http-bridge).
+
 HTTP Server for [React Native](https://github.com/facebook/react-native)
 
-Supports only POST-requests and one-way communication. Created for [Status.im](https://github.com/status-im)
+Supports POST and GET-requests.
 
 ## Install
 
 ```shell
 npm install --save react-native-http-bridge
+```
+
+or 
+
+```shell
+yarn add react-native-http-bridge
 ```
 
 ## Automatically link
@@ -24,7 +32,7 @@ First import/require react-native-http-server:
 
 ```js
 
-    var httpBridge = require('react-native-http-bridge');
+    import httpBridge from '@kingstinct/react-native-http-bridge';
 
 ```
 
@@ -41,6 +49,8 @@ Initalise the server in the `componentWillMount` lifecycle method. You need to p
           // request.url
           // request.postData
 
+          //do something with the data
+        return { code: 200, data: { hello: 'world' } }; //or return a promise
       });
 
     }

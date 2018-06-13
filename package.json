@@ -1,11 +1,11 @@
 {
-  "name": "react-native-http-bridge",
-  "version": "0.4.1",
+  "name": "@kingstinct/react-native-http-bridge",
+  "version": "0.4.2",
   "description": "A simple HTTP debug server for React Native apps",
   "main": "httpServer.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alwx/react-native-http-bridge.git"
+    "url": "git+https://github.com/robertherber/react-native-http-bridge.git"
   },
   "keywords": [
     "react-component",
@@ -16,10 +16,10 @@
     "server",
     "bridge"
   ],
-  "author": "Alexander Pantyukhov",
+  "author": "Robert Herber",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/alwx/react-native-http-bridge/issues"
+    "url": "https://github.com/robertherber/react-native-http-bridge/issues"
   },
-  "homepage": "https://github.com/alwx/react-native-http-bridge#readme"
+  "homepage": "https://github.com/robertherber/react-native-http-bridge#readme"
 }
