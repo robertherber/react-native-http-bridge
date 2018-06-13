@@ -16,6 +16,13 @@ module.exports = {
 
     Server.start(port, serviceName);
     DeviceEventEmitter.addListener('httpServerResponseReceived', (args) => {
+      if (args.postData && typeof (args.postData) === 'string') {
+        try {
+          args.postData = JSON.parse(args.postData);
+        } catch (e) {
+          console.log('Not properly formatted JSON', e);
+        }
+      }
       console.log('args', args);
       const { requestId } = args;
       return Promise.resolve(callback(args)).then(({ code = 200, type = 'application/json', body, data }) => {
